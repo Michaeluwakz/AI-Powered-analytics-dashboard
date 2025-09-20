@@ -3,7 +3,7 @@
 
 const CONFIG = {
     // OpenRouter API Configuration
-    API_KEY: 'YOUR_OPENROUTER_API_KEY_HERE', // Replace with your actual API key
+    API_KEY: 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 // Replace with your actual API key
     
     // Default Model Settings
     DEFAULT_MODEL: 'deepseek/deepseek-r1-distill-llama-70b',

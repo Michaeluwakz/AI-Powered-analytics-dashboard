@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContentIQ - AI-Powered Content Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="config.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --dark: #1e1e2c;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --border-radius: 12px;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--gray);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        nav a:hover, nav a.active {
+            color: var(--primary);
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-title {
+            font-size: 16px;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .icon-summary {
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        }
+
+        .icon-sentiment {
+            background: linear-gradient(135deg, #f72585, #b5179e);
+        }
+
+        .icon-keywords {
+            background: linear-gradient(135deg, #4cc9f0, #4895ef);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-change {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .positive {
+            color: #4ade80;
+        }
+
+        .negative {
+            color: #f87171;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+        }
+
+        .analysis-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .section-header {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab:not(.active) {
+            background: var(--light-gray);
+            color: var(--gray);
+        }
+
+        .input-area {
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            resize: vertical;
+            font-size: 16px;
+        }
+
+        .url-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .url-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+        }
+
+        .results {
+            margin-top: 25px;
+        }
+
+        .result-card {
+            background: var(--light);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .result-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .keyword-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .keyword {
+            background: var(--primary-light);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .chart-container {
+            height: 250px;
+            margin-top: 15px;
+        }
+
+        .history-item {
+            padding: 15px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .history-date {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .model-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .model-badge {
+            background: linear-gradient(135deg, #4cc9f0, #4895ef);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .settings-group {
+            margin-bottom: 20px;
+        }
+
+        .settings-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .settings-group input,
+        .settings-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .settings-group small {
+            color: var(--gray);
+            font-size: 12px;
+        }
+
+        .competitor-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .competitor-results {
+            margin-top: 25px;
+        }
+
+        .strategy-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-left: 4px solid var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .swot-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .swot-section {
+            background: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .swot-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .swot-strengths { border-left: 4px solid #4ade80; }
+        .swot-weaknesses { border-left: 4px solid #f87171; }
+        .swot-opportunities { border-left: 4px solid #60a5fa; }
+        .swot-threats { border-left: 4px solid #fbbf24; }
+
+        .strategy-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .strategy-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .strategy-priority {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 10px;
+        }
+
+        .priority-high { background: #fef2f2; color: #dc2626; }
+        .priority-medium { background: #fef3c7; color: #d97706; }
+        .priority-low { background: #f0fdf4; color: #16a34a; }
+
+        .insight-card {
+            background: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 15px;
+        }
+
+        .insight-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .insight-category {
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+
+        .interactive-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn-interactive {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .btn-interactive:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--light-gray);
+            color: var(--dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray);
+            color: white;
+        }
+
+        .api-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ade80;
+        }
+
+        .status-indicator.error {
+            background: #f87171;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            nav ul {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">AI</div>
+                ContentIQ
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#" class="active">Dashboard</a></li>
+                </ul>
+            </nav>
+            <div class="user-actions">
+                <button class="btn btn-outline">Upgrade</button>
+                <button class="btn btn-primary" onclick="clearCompetitorForm()">New Analysis</button>
+            </div>
+        </header>
+
+        <div class="dashboard">
+            <div class="card stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Content Summarized</div>
+                    <div class="stat-icon icon-summary">📊</div>
+                </div>
+                <div class="stat-value">1,248</div>
+                <div class="stat-change positive">+12% this week</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Positive Sentiment</div>
+                    <div class="stat-icon icon-sentiment">😊</div>
+                </div>
+                <div class="stat-value">78%</div>
+                <div class="stat-change positive">+5% this week</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Keywords Identified</div>
+                    <div class="stat-icon icon-keywords">🔑</div>
+                </div>
+                <div class="stat-value">3,742</div>
+                <div class="stat-change positive">+8% this week</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="analysis-section">
+                <div class="section-header">
+                    <div class="section-title">Content Analysis</div>
+                    <div class="model-info">
+                        <span class="model-badge">DeepSeek R1 Distill Llama 70B</span>
+                    </div>
+                </div>
+                
+                <div class="tabs">
+                    <div class="tab active" data-tab="competitor">Competitor Analysis</div>
+                    <div class="tab" data-tab="settings">API Settings</div>
+                </div>
+                
+                <div class="input-area">
+                    <div class="competitor-input active">
+                        <div class="competitor-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="competitorName">Competitor Company Name:</label>
+                                    <input type="text" id="competitorName" placeholder="e.g., Apple, Tesla, Netflix...">
+                    </div>
+                                <div class="form-group">
+                                    <label for="competitorWebsite">Website URL (Optional):</label>
+                                    <input type="text" id="competitorWebsite" placeholder="https://competitor.com">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="yourCompany">Your Company Name:</label>
+                                <input type="text" id="yourCompany" placeholder="Your company name">
+                            </div>
+                            <div class="form-group">
+                                <label for="analysisFocus">Analysis Focus:</label>
+                                <select id="analysisFocus">
+                                    <option value="comprehensive">Comprehensive Analysis</option>
+                                    <option value="marketing">Marketing Strategy</option>
+                                    <option value="product">Product Strategy</option>
+                                    <option value="pricing">Pricing Strategy</option>
+                                    <option value="branding">Brand Positioning</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="competitorDescription">Additional Context (Optional):</label>
+                                <textarea id="competitorDescription" placeholder="Any specific information about the competitor or your business goals..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="settings-input" style="display: none;">
+                        <div class="settings-group">
+                            <label for="apiKey">OpenRouter API Key:</label>
+                            <input type="password" id="apiKey" placeholder="Enter your OpenRouter API key...">
+                            <small>Your API key is stored locally and never shared.</small>
+                        </div>
+                        <div class="settings-group">
+                            <label for="modelSelect">AI Model:</label>
+                            <select id="modelSelect">
+                                <option value="deepseek/deepseek-r1-distill-llama-70b">DeepSeek R1 Distill Llama 70B</option>
+                            </select>
+                        </div>
+                        <div class="settings-group">
+                            <label for="maxTokens">Max Tokens:</label>
+                            <input type="number" id="maxTokens" value="1000" min="100" max="4000">
+                        </div>
+                        <button class="btn btn-primary" id="saveSettings">Save Settings</button>
+                        <button class="btn btn-outline" id="testAPI">Test API Connection</button>
+                    </div>
+                </div>
+                
+                <div class="actions">
+                    <button class="btn btn-primary" id="analyzeBtn">Analyze Competitor</button>
+                    <button class="btn btn-outline" onclick="clearCompetitorForm()">Clear Form</button>
+                </div>
+                
+                <div class="results">
+                    <div class="result-card">
+                        <div class="result-title">Competitor Analysis</div>
+                        <div class="result-content">Enter competitor details above and click "Analyze Competitor" to get strategic insights...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <div class="card">
+                    <div class="section-header">
+                        <div class="section-title">Sentiment Trends</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="sentimentChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="section-header">
+                        <div class="section-title">Recent Analysis</div>
+                    </div>
+                    <div class="history-list">
+                        <div class="history-item">
+                            <div class="history-title">The Future of AI in Content Marketing</div>
+                            <div class="history-date">Today, 10:24 AM</div>
+                        </div>
+                        <div class="history-item">
+                            <div class="history-title">Consumer Trends 2023 Report</div>
+                            <div class="history-date">Yesterday, 3:45 PM</div>
+                        </div>
+                        <div class="history-item">
+                            <div class="history-title">Competitor Analysis: Tech Industry</div>
+                            <div class="history-date">Oct 12, 2023</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>ContentIQ AI Dashboard &copy; 2025. Powered by DeepSeek AI MODEL technology.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Configuration - Load from config.js
+        let config = {
+            apiKey: CONFIG.API_KEY,
+            model: localStorage.getItem('selected_model') || CONFIG.DEFAULT_MODEL,
+            maxTokens: parseInt(localStorage.getItem('max_tokens')) || CONFIG.MAX_TOKENS,
+            temperature: CONFIG.TEMPERATURE,
+            fallbackModels: CONFIG.FALLBACK_MODELS,
+            debugMode: CONFIG.DEBUG_MODE
+        };
+
+        // Initialize UI
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load saved settings
+            document.getElementById('apiKey').value = config.apiKey;
+            document.getElementById('modelSelect').value = config.model;
+            document.getElementById('maxTokens').value = config.maxTokens;
+            
+            // Update model badge
+            updateModelBadge();
+            
+            // Test API connection if key is available
+            if (config.apiKey) {
+                testAPIConnection();
+            }
+        });
+
+        // Test API connection
+        async function testAPIConnection() {
+            try {
+                if (config.debugMode) {
+                    console.log('Testing API connection with model:', config.model);
+                    console.log('API URL:', CONFIG.OPENROUTER_API_URL);
+                }
+                const response = await fetch(CONFIG.OPENROUTER_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${config.apiKey}`,
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': window.location.origin,
+                        'X-Title': 'ContentIQ Dashboard'
+                    },
+                    body: JSON.stringify({
+                        model: config.model,
+                        messages: [
+                            {
+                                role: 'user',
+                                content: 'Test connection. Respond with: {"status": "connected"}'
+                            }
+                        ],
+                        max_tokens: 50,
+                        temperature: 0.1
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('API Connection Test Successful:', data);
+                    showNotification('API connection successful!', 'success');
+                } else {
+                    console.error('API Connection Test Failed:', response.status, response.statusText);
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('Error details:', errorData);
+                    
+                    showNotification(`API connection failed: ${response.status} - ${errorData.error?.message || response.statusText}`, 'error');
+                }
+            } catch (error) {
+                console.error('API Connection Test Error:', error);
+                showNotification(`API connection error: ${error.message}`, 'error');
+            }
+        }
+
+
+        // Tab switching functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                const tabType = tab.dataset.tab;
+                document.querySelector('.competitor-input').style.display = tabType === 'competitor' ? 'block' : 'none';
+                document.querySelector('.settings-input').style.display = tabType === 'settings' ? 'block' : 'none';
+            });
+        });
+
+        // Settings save functionality
+        document.getElementById('saveSettings').addEventListener('click', () => {
+            config.apiKey = document.getElementById('apiKey').value;
+            config.model = document.getElementById('modelSelect').value;
+            config.maxTokens = parseInt(document.getElementById('maxTokens').value);
+            
+            // Save to localStorage
+            localStorage.setItem('openrouter_api_key', config.apiKey);
+            localStorage.setItem('selected_model', config.model);
+            localStorage.setItem('max_tokens', config.maxTokens);
+            
+            updateModelBadge();
+            showNotification('Settings saved successfully!', 'success');
+        });
+
+        // Test API button functionality
+        document.getElementById('testAPI').addEventListener('click', async () => {
+            const testBtn = document.getElementById('testAPI');
+            const originalText = testBtn.textContent;
+            
+            testBtn.innerHTML = '<span class="loading-spinner"></span> Testing...';
+            testBtn.disabled = true;
+            
+            try {
+                await testAPIConnection();
+            } finally {
+                testBtn.textContent = originalText;
+                testBtn.disabled = false;
+            }
+        });
+
+        // Model selection change
+        document.getElementById('modelSelect').addEventListener('change', () => {
+            config.model = document.getElementById('modelSelect').value;
+            updateModelBadge();
+        });
+
+
+        // OpenRouter API integration
+        async function callOpenRouterAPI(content, analysisType) {
+            if (!config.apiKey) {
+                throw new Error('Please configure your OpenRouter API key in Settings');
+            }
+
+            const prompt = analysisType === 'competitor' ? content : generatePrompt(content, analysisType);
+            
+            if (config.debugMode) {
+                console.log('API Request:', {
+                    model: config.model,
+                    apiKey: config.apiKey ? 'Present' : 'Missing',
+                    contentLength: content.length,
+                    analysisType: analysisType,
+                    apiUrl: CONFIG.OPENROUTER_API_URL
+                });
+            }
+            
+            const response = await fetch(CONFIG.OPENROUTER_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${config.apiKey}`,
+                    'Content-Type': 'application/json',
+                    'HTTP-Referer': window.location.origin,
+                    'X-Title': 'ContentIQ Dashboard'
+                },
+                body: JSON.stringify({
+                    model: config.model,
+                    messages: [
+                        {
+                            role: 'system',
+                            content: analysisType === 'competitor' 
+                                ? 'You are a strategic business analyst specializing in competitive analysis. Provide detailed, actionable insights in JSON format.'
+                                : 'You are an expert content analyst specializing in sentiment analysis, summarization, and keyword extraction. Provide clear, structured responses in JSON format.'
+                        },
+                        {
+                            role: 'user',
+                            content: prompt
+                        }
+                    ],
+                    max_tokens: config.maxTokens,
+                    temperature: config.temperature
+                })
+            });
+
+            console.log('API Response Status:', response.status);
+            
+            if (!response.ok) {
+                let errorMessage = `API Error: ${response.status}`;
+                try {
+                    const errorData = await response.json();
+                    console.error('API Error Details:', errorData);
+                    errorMessage = errorData.error?.message || errorData.message || errorMessage;
+                } catch (e) {
+                    console.error('Failed to parse error response:', e);
+                }
+                throw new Error(errorMessage);
+            }
+
+            const data = await response.json();
+            console.log('API Response Data:', data);
+            
+            if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                throw new Error('Invalid API response format');
+            }
+            
+            return data.choices[0].message.content;
+        }
+
+
+        // Analyze button functionality
+        document.getElementById('analyzeBtn').addEventListener('click', async () => {
+            await performCompetitorAnalysis();
+        });
+
+
+        // Competitor analysis function
+        async function performCompetitorAnalysis() {
+            const competitorName = document.getElementById('competitorName').value.trim();
+            const yourCompany = document.getElementById('yourCompany').value.trim();
+            const analysisFocus = document.getElementById('analysisFocus').value;
+            const competitorWebsite = document.getElementById('competitorWebsite').value.trim();
+            const additionalContext = document.getElementById('competitorDescription').value.trim();
+            
+            if (!competitorName || !yourCompany) {
+                showNotification('Please fill in both competitor name and your company name', 'error');
+                return;
+            }
+            
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const originalText = analyzeBtn.textContent;
+            
+            // Show loading state
+            analyzeBtn.innerHTML = '<span class="loading-spinner"></span> Analyzing Competitor...';
+            analyzeBtn.disabled = true;
+            
+            try {
+                // Prepare competitor analysis prompt
+                const competitorPrompt = generateCompetitorPrompt(competitorName, yourCompany, analysisFocus, competitorWebsite, additionalContext);
+                console.log('Competitor Prompt:', competitorPrompt);
+                
+                // Call OpenRouter API
+                const analysisResult = await callOpenRouterAPI(competitorPrompt, 'competitor');
+                console.log('Raw Competitor API Response:', analysisResult);
+                
+                let analysis;
+                try {
+                    // Clean the response before parsing
+                    let cleanedResponse = analysisResult.trim();
+                    
+                    // Remove any markdown code blocks if present
+                    if (cleanedResponse.includes('```json')) {
+                        cleanedResponse = cleanedResponse.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+                    }
+                    
+                    // Remove any text before the first { or after the last }
+                    const firstBrace = cleanedResponse.indexOf('{');
+                    const lastBrace = cleanedResponse.lastIndexOf('}');
+                    
+                    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+                        cleanedResponse = cleanedResponse.substring(firstBrace, lastBrace + 1);
+                    }
+                    
+                    console.log('Cleaned competitor response for parsing:', cleanedResponse);
+                    analysis = JSON.parse(cleanedResponse);
+                } catch (parseError) {
+                    console.error('Competitor JSON Parse Error:', parseError);
+                    console.log('Raw competitor response that failed to parse:', analysisResult);
+                    console.log('Cleaned competitor response that failed to parse:', cleanedResponse);
+                    
+                    // Try to extract JSON from the response
+                    try {
+                        const jsonMatch = analysisResult.match(/\{[\s\S]*\}/);
+                        if (jsonMatch) {
+                            analysis = JSON.parse(jsonMatch[0]);
+                            console.log('Successfully extracted JSON from competitor response');
+                        } else {
+                            throw new Error('No JSON found in competitor response');
+                        }
+                    } catch (extractError) {
+                        throw new Error('Failed to parse competitor analysis response. The AI may have returned invalid JSON format.');
+                    }
+                }
+                
+                // Update results with competitor analysis
+                updateCompetitorResults(analysis, competitorName, yourCompany);
+                
+                showNotification('Competitor analysis complete! Strategic insights generated.', 'success');
+                
+            } catch (error) {
+                console.error('Competitor analysis error:', error);
+                showNotification(`Analysis failed: ${error.message}`, 'error');
+                
+                // Generate focus-specific fallback data
+                const fallbackData = generateFallbackAnalysis(competitorName, yourCompany, analysisFocus);
+                updateCompetitorResults(fallbackData, competitorName, yourCompany);
+            } finally {
+                // Restore button
+                analyzeBtn.textContent = originalText;
+                analyzeBtn.disabled = false;
+            }
+        }
+
+
+        function updateModelBadge() {
+            const modelName = document.getElementById('modelSelect').selectedOptions[0].text;
+            document.querySelector('.model-badge').textContent = modelName;
+        }
+
+        // Generate competitor analysis prompt
+        function generateCompetitorPrompt(competitorName, yourCompany, analysisFocus, competitorWebsite, additionalContext) {
+            let basePrompt = `You are a strategic business analyst. Perform a detailed competitive analysis between ${yourCompany} and ${competitorName}.`;
+            
+            if (competitorWebsite) {
+                basePrompt += ` You can reference their website: ${competitorWebsite}`;
+            }
+            
+            if (additionalContext) {
+                basePrompt += ` Additional context: ${additionalContext}`;
+            }
+            
+            const focusInstructions = {
+                'comprehensive': `Provide a complete competitive analysis including:
+                - Market positioning comparison
+                - SWOT analysis (Strengths, Weaknesses, Opportunities, Threats)
+                - Strategic recommendations with priority levels
+                - Key performance metrics
+                - Actionable insights for ${yourCompany} to gain competitive advantage`,
+                
+                'marketing': `Focus specifically on marketing and brand analysis:
+                - Marketing strategies and campaigns
+                - Brand positioning and messaging
+                - Target audience analysis
+                - Digital presence and social media strategy
+                - Marketing budget and resource allocation
+                - Brand perception and reputation`,
+                
+                'product': `Analyze product and service offerings:
+                - Product portfolio comparison
+                - Feature analysis and differentiation
+                - Product development strategies
+                - Innovation and R&D focus
+                - Product lifecycle management
+                - Customer experience and usability`,
+                
+                'pricing': `Examine pricing and business models:
+                - Pricing strategies and models
+                - Value proposition analysis
+                - Cost structure comparison
+                - Revenue streams and monetization
+                - Price sensitivity and elasticity
+                - Competitive pricing advantages`,
+                
+                'branding': `Evaluate brand positioning and perception:
+                - Brand identity and visual elements
+                - Brand messaging and communication
+                - Market perception and reputation
+                - Brand loyalty and customer retention
+                - Brand differentiation strategies
+                - Brand awareness and recognition`
+            };
+            
+            const selectedFocus = focusInstructions[analysisFocus] || focusInstructions['comprehensive'];
+            
+            return `${basePrompt}
+
+${selectedFocus}
+
+CRITICAL: You must respond with ONLY valid JSON. Do not include any text before or after the JSON. Do not use markdown code blocks. Return only the JSON object.
+
+Required JSON format:
+{
+    "overview": "Brief competitive overview focusing on ${analysisFocus}",
+    "swot": {
+        "strengths": ["strength1", "strength2", "strength3"],
+        "weaknesses": ["weakness1", "weakness2", "weakness3"],
+        "opportunities": ["opportunity1", "opportunity2", "opportunity3"],
+        "threats": ["threat1", "threat2", "threat3"]
+    },
+    "strategies": [
+        {
+            "title": "Strategy name",
+            "description": "Detailed strategy description",
+            "priority": "high",
+            "impact": "high"
+        }
+    ],
+    "metrics": {
+        "marketShare": "X%",
+        "brandStrength": "X.X/10",
+        "innovationScore": "X.X/10",
+        "customerSatisfaction": "X.X/10"
+    },
+    "recommendations": [
+        "Specific actionable recommendation 1",
+        "Specific actionable recommendation 2",
+        "Specific actionable recommendation 3"
+    ]
+}`;
+        }
+
+        // Update competitor analysis results
+        function updateCompetitorResults(analysis, competitorName, yourCompany) {
+            const resultsContainer = document.querySelector('.results');
+            
+            resultsContainer.innerHTML = `
+                <div class="competitor-results">
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <h3>Competitive Overview: ${competitorName} vs ${yourCompany}</h3>
+                            <span class="insight-category">Strategic Analysis</span>
+                        </div>
+                        <p>${analysis.overview}</p>
+                    </div>
+
+                    <div class="swot-grid">
+                        <div class="swot-section swot-strengths">
+                            <div class="swot-title">💪 Strengths</div>
+                            <ul>
+                                ${analysis.swot.strengths.map(strength => `<li>${strength}</li>`).join('')}
+                    </ul>
+                        </div>
+                        <div class="swot-section swot-weaknesses">
+                            <div class="swot-title">⚠️ Weaknesses</div>
+                            <ul>
+                                ${analysis.swot.weaknesses.map(weakness => `<li>${weakness}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div class="swot-section swot-opportunities">
+                            <div class="swot-title">🚀 Opportunities</div>
+                            <ul>
+                                ${analysis.swot.opportunities.map(opportunity => `<li>${opportunity}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div class="swot-section swot-threats">
+                            <div class="swot-title">⚠️ Threats</div>
+                            <ul>
+                                ${analysis.swot.threats.map(threat => `<li>${threat}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="metric-grid">
+                        <div class="metric-card">
+                            <div class="metric-value">${analysis.metrics.marketShare}</div>
+                            <div class="metric-label">Market Share</div>
+                            </div>
+                        <div class="metric-card">
+                            <div class="metric-value">${analysis.metrics.brandStrength}</div>
+                            <div class="metric-label">Brand Strength</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">${analysis.metrics.innovationScore}</div>
+                            <div class="metric-label">Innovation Score</div>
+                    </div>
+                        <div class="metric-card">
+                            <div class="metric-value">${analysis.metrics.customerSatisfaction}</div>
+                            <div class="metric-label">Customer Satisfaction</div>
+                        </div>
+                    </div>
+
+                    <div class="strategy-card">
+                        <h3>🎯 Strategic Recommendations</h3>
+                        <ul class="strategy-list">
+                            ${analysis.strategies.map(strategy => `
+                                <li class="strategy-item">
+                                    <span class="strategy-priority priority-${strategy.priority}">${strategy.priority.toUpperCase()}</span>
+                                    <strong>${strategy.title}</strong>
+                                    <p>${strategy.description}</p>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+
+                    <div class="insight-card">
+                        <h3>💡 Action Items</h3>
+                        <ul>
+                            ${analysis.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <div class="interactive-buttons">
+                        <button class="btn-interactive" onclick="exportAnalysis()">📊 Export Analysis</button>
+                        <button class="btn-interactive" onclick="generateReport()">📋 Generate Report</button>
+                        <button class="btn-secondary" onclick="scheduleFollowUp()">⏰ Schedule Follow-up</button>
+                        <button class="btn-secondary" onclick="compareAnother()">🔄 Compare Another</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Generate focus-specific fallback analysis
+        function generateFallbackAnalysis(competitorName, yourCompany, analysisFocus) {
+            const focusData = {
+                'comprehensive': {
+                    overview: `${competitorName} is a strong competitor with significant market presence. They excel in innovation and customer experience but have some weaknesses in pricing strategy.`,
+                    swot: {
+                        strengths: ["Strong brand recognition", "Innovative product development", "Large customer base", "Advanced technology"],
+                        weaknesses: ["High pricing", "Limited market segments", "Complex product offerings", "Customer service issues"],
+                        opportunities: ["Market expansion", "New product lines", "Digital transformation", "Partnership opportunities"],
+                        threats: ["New competitors", "Market saturation", "Economic downturns", "Regulatory changes"]
+                    },
+                    strategies: [
+                        { title: "Differentiate on Price", description: "Offer competitive pricing while maintaining quality", priority: "high", impact: "high" },
+                        { title: "Focus on Customer Service", description: "Excel in areas where competitor struggles", priority: "high", impact: "medium" },
+                        { title: "Innovate in Underserved Areas", description: "Target market segments they ignore", priority: "medium", impact: "high" },
+                        { title: "Build Strategic Partnerships", description: "Collaborate with complementary businesses", priority: "medium", impact: "medium" }
+                    ],
+                    metrics: {
+                        marketShare: "15%",
+                        brandStrength: "8.5/10",
+                        innovationScore: "9/10",
+                        customerSatisfaction: "7.2/10"
+                    },
+                    recommendations: [
+                        "Focus on price-sensitive market segments",
+                        "Improve customer onboarding process",
+                        "Develop niche product offerings",
+                        "Invest in customer support technology"
+                    ]
+                },
+                'marketing': {
+                    overview: `${competitorName} has a strong marketing presence with effective brand positioning. They excel in digital marketing but may have gaps in traditional marketing channels.`,
+                    swot: {
+                        strengths: ["Strong digital presence", "Effective brand messaging", "Large social media following", "Creative marketing campaigns"],
+                        weaknesses: ["Limited traditional marketing", "High marketing costs", "Inconsistent messaging", "Weak content strategy"],
+                        opportunities: ["Expand to new channels", "Improve content marketing", "Leverage influencer partnerships", "Optimize marketing ROI"],
+                        threats: ["Marketing budget constraints", "Changing algorithms", "Increased competition", "Brand reputation risks"]
+                    },
+                    strategies: [
+                        { title: "Develop Content Marketing Strategy", description: "Create valuable content to attract and engage customers", priority: "high", impact: "high" },
+                        { title: "Optimize Digital Marketing", description: "Improve SEO, PPC, and social media performance", priority: "high", impact: "medium" },
+                        { title: "Build Influencer Partnerships", description: "Collaborate with industry influencers for brand awareness", priority: "medium", impact: "high" },
+                        { title: "Diversify Marketing Channels", description: "Expand beyond digital to traditional marketing", priority: "medium", impact: "medium" }
+                    ],
+                    metrics: {
+                        marketShare: "12%",
+                        brandStrength: "8.2/10",
+                        innovationScore: "7.8/10",
+                        customerSatisfaction: "8.1/10"
+                    },
+                    recommendations: [
+                        "Invest in content marketing and SEO",
+                        "Develop a consistent brand voice",
+                        "Expand marketing channel diversity",
+                        "Focus on customer retention strategies"
+                    ]
+                },
+                'product': {
+                    overview: `${competitorName} offers innovative products with strong feature sets. They excel in product development but may have gaps in user experience and pricing.`,
+                    swot: {
+                        strengths: ["Innovative product features", "Strong R&D capabilities", "Quality product design", "Comprehensive product portfolio"],
+                        weaknesses: ["Complex user interface", "High product costs", "Limited customization", "Slow product updates"],
+                        opportunities: ["Simplify user experience", "Add customization options", "Faster product iterations", "Expand product lines"],
+                        threats: ["Rapid technology changes", "Customer expectations", "Competitive product launches", "Development costs"]
+                    },
+                    strategies: [
+                        { title: "Improve User Experience", description: "Simplify product interface and user journey", priority: "high", impact: "high" },
+                        { title: "Add Product Customization", description: "Offer more personalized product options", priority: "high", impact: "medium" },
+                        { title: "Accelerate Product Development", description: "Implement agile development for faster releases", priority: "medium", impact: "high" },
+                        { title: "Expand Product Portfolio", description: "Develop complementary products and services", priority: "medium", impact: "medium" }
+                    ],
+                    metrics: {
+                        marketShare: "18%",
+                        brandStrength: "7.9/10",
+                        innovationScore: "9.2/10",
+                        customerSatisfaction: "7.8/10"
+                    },
+                    recommendations: [
+                        "Focus on user experience improvements",
+                        "Implement customer feedback loops",
+                        "Invest in product innovation",
+                        "Develop competitive pricing strategies"
+                    ]
+                },
+                'pricing': {
+                    overview: `${competitorName} uses a premium pricing strategy with high-value positioning. They excel in value communication but may have pricing gaps in certain market segments.`,
+                    swot: {
+                        strengths: ["Premium brand positioning", "Strong value proposition", "Flexible pricing tiers", "High perceived value"],
+                        weaknesses: ["High price points", "Limited budget options", "Complex pricing structure", "Price sensitivity"],
+                        opportunities: ["Introduce budget tiers", "Simplify pricing", "Value-based pricing", "Competitive pricing"],
+                        threats: ["Price wars", "Economic downturns", "Customer price sensitivity", "Competitive pricing pressure"]
+                    },
+                    strategies: [
+                        { title: "Introduce Budget-Friendly Options", description: "Create lower-priced tiers for price-sensitive customers", priority: "high", impact: "high" },
+                        { title: "Simplify Pricing Structure", description: "Make pricing more transparent and easy to understand", priority: "high", impact: "medium" },
+                        { title: "Implement Value-Based Pricing", description: "Price based on customer value and outcomes", priority: "medium", impact: "high" },
+                        { title: "Develop Competitive Pricing", description: "Match or beat competitor pricing strategically", priority: "medium", impact: "medium" }
+                    ],
+                    metrics: {
+                        marketShare: "14%",
+                        brandStrength: "8.7/10",
+                        innovationScore: "8.1/10",
+                        customerSatisfaction: "8.3/10"
+                    },
+                    recommendations: [
+                        "Develop flexible pricing models",
+                        "Focus on value communication",
+                        "Create pricing tiers for different segments",
+                        "Monitor competitive pricing regularly"
+                    ]
+                },
+                'branding': {
+                    overview: `${competitorName} has a strong brand identity with clear positioning. They excel in brand recognition but may have gaps in brand differentiation and emotional connection.`,
+                    swot: {
+                        strengths: ["Strong brand recognition", "Clear brand identity", "Consistent brand messaging", "Professional brand image"],
+                        weaknesses: ["Limited emotional connection", "Weak brand differentiation", "Inconsistent brand experience", "Limited brand personality"],
+                        opportunities: ["Build emotional connections", "Differentiate brand positioning", "Improve brand consistency", "Develop brand personality"],
+                        threats: ["Brand dilution", "Negative brand perception", "Competitive branding", "Changing brand preferences"]
+                    },
+                    strategies: [
+                        { title: "Build Emotional Brand Connection", description: "Create emotional stories and experiences that resonate", priority: "high", impact: "high" },
+                        { title: "Differentiate Brand Positioning", description: "Develop unique brand attributes and messaging", priority: "high", impact: "medium" },
+                        { title: "Improve Brand Consistency", description: "Ensure consistent brand experience across all touchpoints", priority: "medium", impact: "high" },
+                        { title: "Develop Brand Personality", description: "Create a distinctive brand voice and character", priority: "medium", impact: "medium" }
+                    ],
+                    metrics: {
+                        marketShare: "16%",
+                        brandStrength: "8.9/10",
+                        innovationScore: "7.5/10",
+                        customerSatisfaction: "8.5/10"
+                    },
+                    recommendations: [
+                        "Develop a unique brand story",
+                        "Create emotional brand connections",
+                        "Ensure consistent brand experience",
+                        "Build strong brand differentiation"
+                    ]
+                }
+            };
+            
+            return focusData[analysisFocus] || focusData['comprehensive'];
+        }
+
+        // Interactive functions
+        function exportAnalysis() {
+            const analysisData = document.querySelector('.competitor-results').innerText;
+            const blob = new Blob([analysisData], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'competitor-analysis.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+            showNotification('Analysis exported successfully!', 'success');
+        }
+
+        function generateReport() {
+            showNotification('Generating comprehensive report...', 'info');
+            // In a real implementation, this would generate a PDF or detailed report
+            setTimeout(() => {
+                showNotification('Report generated! Check your downloads.', 'success');
+            }, 2000);
+        }
+
+        function scheduleFollowUp() {
+            showNotification('Follow-up scheduled for next week!', 'success');
+        }
+
+        function compareAnother() {
+            // Clear form and focus on competitor name
+            document.getElementById('competitorName').value = '';
+            document.getElementById('competitorName').focus();
+            showNotification('Ready to analyze another competitor!', 'info');
+        }
+
+        function clearCompetitorForm() {
+            document.getElementById('competitorName').value = '';
+            document.getElementById('yourCompany').value = '';
+            document.getElementById('competitorWebsite').value = '';
+            document.getElementById('competitorDescription').value = '';
+            document.getElementById('analysisFocus').value = 'comprehensive';
+            
+            // Clear results
+            document.querySelector('.results').innerHTML = `
+                <div class="result-card">
+                    <div class="result-title">Competitor Analysis</div>
+                    <div class="result-content">Enter competitor details above and click "Analyze Competitor" to get strategic insights...</div>
+                </div>
+            `;
+            
+            showNotification('Form cleared!', 'info');
+        }
+
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 1000;
+                transition: all 0.3s ease;
+                background: ${type === 'success' ? '#4ade80' : type === 'error' ? '#f87171' : '#4361ee'};
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize sentiment chart
+        const ctx = document.getElementById('sentimentChart').getContext('2d');
+        const sentimentChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Positive Sentiment',
+                    data: [65, 59, 70, 72, 75, 73, 78],
+                    borderColor: '#4361ee',
+                    tension: 0.3,
+                    fill: false
+                }, {
+                    label: 'Negative Sentiment',
+                    data: [25, 30, 26, 22, 18, 20, 15],
+                    borderColor: '#f72585',
+                    tension: 0.3,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
